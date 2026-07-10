@@ -1,0 +1,635 @@
+:root {
+  --screen-width: 430px;
+  --screen-height: 932px;
+
+  --color-bg-radial: radial-gradient(
+    circle at 46% 58%,
+    rgba(120, 110, 101, 1) 0%,
+    rgba(209, 196, 176, 1) 42%,
+    rgba(110, 81, 64, 1) 100%
+  );
+  --color-bg-radial-wish: radial-gradient(
+    circle at 46% 58%,
+    rgba(209, 196, 176, 1) 0%,
+    rgba(184, 167, 148, 1) 25%,
+    rgba(159, 138, 120, 1) 50%,
+    rgba(135, 110, 92, 1) 75%,
+    rgba(110, 81, 64, 1) 100%
+  );
+
+  --color-gold: #ffce92;
+  --color-brown: #6e5140;
+  --color-red: #d4020b;
+  --color-red-header: #ff0000;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-placeholder: #d4d4d4;
+  --color-input-bg: rgba(255, 255, 255, 0.9);
+  --color-badge-bg: rgba(255, 255, 255, 0.4);
+
+  --font-josefin: 'Josefin Sans', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-julee: 'Julee', cursive;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Base App Container ── */
+#app {
+  position: relative;
+  width: var(--screen-width);
+  height: var(--screen-height);
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--color-bg-radial);
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+.screen[data-screen='wish'],
+.screen[data-screen='send_the_wish'],
+.screen[data-screen='makeawish'],
+.screen[data-screen='boxopen1'],
+.screen[data-screen='history_no_data'],
+.screen[data-screen='history_data'],
+#crack {
+  background: var(--color-bg-radial-wish);
+}
+
+/* ── Shared header ── */
+.screen-header {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12.29px;
+  text-align: center;
+  font-family: var(--font-josefin);
+  font-weight: 500;
+  font-size: 26.12px;
+  line-height: normal;
+  color: var(--color-gold);
+  z-index: 2;
+}
+
+/* ── Homepage ── */
+.home-header {
+  position: absolute;
+  top: 84px;
+  left: 80px;
+  width: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  z-index: 3;
+}
+
+.home-header .subtitle {
+  font-family: var(--font-josefin);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: normal;
+  text-align: center;
+  color: var(--color-gold);
+  white-space: pre-line;
+}
+
+.arrow-down {
+  width: 32px;
+  height: 32px;
+}
+
+/* ── เพิ่มแอนิเมชันขยับขึ้นลงให้ลูกศร ── */
+.arrow-down {
+  animation: floatArrow 2s ease-in-out infinite;
+  display: block;
+}
+
+@keyframes floatArrow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px); /* ขยับขึ้น 10px แล้วลงเบาๆ */
+  }
+}
+
+.wish-boxes {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.box-wish {
+  position: absolute;
+  width: 139.55px;
+  height: 351.56px;
+  border: none;
+  background: url('assets/images/box-wish.png') center / contain no-repeat;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease;
+}
+
+.box-wish:hover {
+  transform: scale(1.03);
+}
+
+.box-wish:active {
+  transform: scale(0.98);
+}
+
+.home-ground {
+  position: absolute;
+  left: 22px;
+  top: 478px;
+  width: 386px;
+  height: 172px;
+  border-radius: 15.6px;
+  background: linear-gradient(0deg, rgba(40, 2, 1, 1) 0%, rgba(212, 10, 4, 1) 100%);
+  z-index: 1;
+}
+
+.promo-box {
+  position: absolute;
+  left: 17px;
+  top: 575px;
+  width: 398px;
+  height: 153px;
+  background: var(--color-red);
+  border-radius: 8px;
+  padding: 17px 33px 28px;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.promo-tagline {
+  position: absolute;
+  top: 17px;
+  left: 33px;
+  font-family: var(--font-julee);
+  font-size: 20.74px;
+  color: var(--color-gold);
+  white-space: nowrap;
+}
+
+.promo-stars {
+  position: absolute;
+  left: 17px;
+  top: 76px;
+  width: 361px;
+  height: auto;
+  pointer-events: none;
+}
+
+.promo-content {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin-top: 28px;
+}
+
+.promo-price {
+  font-family: var(--font-josefin);
+  font-weight: 700;
+  font-size: 27.86px;
+  color: var(--color-gold);
+  white-space: nowrap;
+}
+
+.promo-burst-wrap {
+  position: relative;
+  width: 127px;
+  height: 98px;
+  flex-shrink: 0;
+}
+
+.promo-burst {
+  width: 100%;
+  height: 100%;
+}
+
+.promo-burst-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(7.47deg);
+  font-family: var(--font-josefin);
+  font-weight: 700;
+  font-size: 18.46px;
+  color: var(--color-red);
+  text-align: center;
+  line-height: normal;
+}
+
+.btn-view-all {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 782px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-josefin);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--color-brown);
+  cursor: pointer;
+  z-index: 3;
+  text-decoration: underline;
+}
+
+.btn-view-all:hover {
+  opacity: 0.8;
+}
+
+/* ── Make a wish / Box open ── */
+.makeawish-box {
+  position: absolute;
+  left: 31px;
+  top: 2px;
+  width: 368px;
+  height: auto;
+  pointer-events: none;
+}
+
+.boxopen1-img {
+  position: absolute;
+  left: -18px;
+  top: 181px;
+  width: 466px;
+  height: auto;
+  pointer-events: none;
+}
+
+/* ── CRACK SCREEN LAYOUT (ซูมภาพไม้ให้ใหญ่สะใจสุดๆ) ── */
+#crack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: none !important;
+}
+
+#crack.active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  overflow: visible;
+}
+
+#crack .screen-header {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#crack .wood-stick {
+  position: relative;
+  width: 160px !important;    /* ปรับฐานให้กว้างขึ้น */
+  height: 600px !important;   
+  max-width: none !important;
+  max-height: none !important;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px auto 0 auto;
+}
+
+#crack .crack-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#crack .wood-stick img, 
+#crack .crack-img-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  transform: scale(1.8) !important; /* ซูมหนักๆ ให้ล้นทะลุจอ */
+  display: block;
+}
+
+#crackCounter {
+  font-family: var(--font-poppins);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-brown);
+  text-align: center;
+  z-index: 4;
+  margin-top: 60px; /* ดันข้อความลงมาหลบไม้ที่ใหญ่ขึ้นมาก */
+}
+
+#crackBtn {
+  padding: 14px 32px;
+  border: 2px solid var(--color-brown);
+  border-radius: 12px;
+  background: var(--color-gold);
+  font-family: var(--font-josefin);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-brown);
+  cursor: pointer;
+  z-index: 3;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+#crackBtn:hover:not(:disabled) {
+  background: #ffdca8;
+}
+
+#crackBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Wish input screen wood layout ── */
+.screen[data-screen='wish'] {
+  display: none;
+}
+.screen[data-screen='wish'].active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.screen[data-screen='wish'] .wood-stick {
+  position: relative;
+  width: 130px !important;
+  height: 600px !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 auto;
+  z-index: 1;
+}
+.screen[data-screen='wish'] .wood-stick img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  transform: scale(1.4) !important;
+}
+
+.wish-input-box {
+  position: absolute;
+  left: 37px;
+  top: 666px;
+  width: 355px;
+  height: 140px;
+  background: var(--color-input-bg);
+  border-radius: 8px;
+  padding: 8px;
+  z-index: 2;
+}
+
+.wish-input-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-family: var(--font-poppins);
+  font-size: 18px;
+  min-height: 27px;
+}
+
+.wish-cursor {
+  color: var(--color-black);
+  animation: blink 1s step-end infinite;
+}
+
+.wish-cursor.hidden {
+  display: none;
+}
+
+.wish-placeholder {
+  color: var(--color-placeholder);
+}
+
+.wish-placeholder.hidden {
+  display: none;
+}
+
+.wish-text {
+  color: var(--color-black);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.wish-input-hidden {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-family: var(--font-poppins);
+  font-size: 18px;
+  padding: 8px;
+  cursor: text;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.btn-make-wish {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 821px;
+  padding: 8px 16px;
+  border: 2px solid var(--color-brown);
+  border-radius: 8px;
+  background: var(--color-gold);
+  font-family: var(--font-josefin);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--color-brown);
+  cursor: pointer;
+  opacity: 0.2;
+  z-index: 2;
+}
+
+.btn-make-wish.enabled {
+  opacity: 1;
+}
+
+/* ── History ── */
+.history-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--color-red-header);
+  z-index: 3;
+}
+
+.history-header p {
+  flex: 1;
+  font-family: var(--font-josefin);
+  font-weight: 600;
+  font-size: 26.12px;
+  color: var(--color-white);
+  text-align: center;
+}
+
+.btn-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.history-badge {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px;
+  border-radius: 24px;
+  background: var(--color-badge-bg);
+  font-family: var(--font-poppins);
+  font-size: 10px;
+  color: var(--color-black);
+  z-index: 2;
+}
+
+.history-list {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 64px);
+  overflow-y: auto;
+  padding: 20px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* ขยายระยะห่างระหว่างแต่ละข้อความ */
+  z-index: 2;
+}
+
+.history-date-badge {
+  font-family: var(--font-poppins);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-brown);
+  margin-top: 8px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  background: var(--color-input-bg);
+  padding: 6px 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-item-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.history-emoji {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* แก้ไขโครงสร้างเวลาให้อยู่นอกกล่องขาว */
+.history-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.history-bubble {
+  background: var(--color-input-bg);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: var(--font-poppins);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-black);
+  word-break: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+}
+
+/* เวลาย้ายมาอยู่นอกกล่อง จัดให้อยู่ตรงกลางตามแบบ */
+.history-time-outside {
+  font-family: var(--font-poppins);
+  font-size: 12px;
+  color: var(--color-brown);
+  opacity: 0.8;
+  margin-top: 6px;
+  text-align: center;
+  width: 100%;
+}
+
+@media (max-width: 430px) {
+  #app {
+    width: 100vw;
+    height: 100vh;
+    max-height: 932px;
+  }
+}
+
+#boxopen1 .boxopen1-img lottie-player,
+#boxopen1 .boxopen1-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#boxopen1 .boxopen1-img lottie-player {
+  width: 368px;
+  height: auto;
+}
