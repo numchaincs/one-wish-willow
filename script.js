@@ -362,7 +362,40 @@ function startCrackFlow(text) {
   }
 }
 
+// ── Fit-to-screen: ย่อ/ขยายทั้งแอป (ดีไซน์ fixed 430x932) ให้พอดีกับหน้าจอจริงเสมอ ──
+function fitAppToScreen() {
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  const DESIGN_WIDTH = 430;
+  const DESIGN_HEIGHT = 932;
+
+  // ใช้ visualViewport ถ้ามี เพราะแม่นกว่า window.innerHeight บนมือถือ
+  // (window.innerHeight มักไม่หัก address bar / แถบด้านล่างของเบราว์เซอร์ออกให้)
+  const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+  const scale = Math.min(viewportWidth / DESIGN_WIDTH, viewportHeight / DESIGN_HEIGHT);
+
+  const scaledWidth = DESIGN_WIDTH * scale;
+  const scaledHeight = DESIGN_HEIGHT * scale;
+
+  const offsetX = Math.max(0, (viewportWidth - scaledWidth) / 2);
+  const offsetY = Math.max(0, (viewportHeight - scaledHeight) / 2);
+
+  app.style.transform = `scale(${scale})`;
+  app.style.left = `${offsetX}px`;
+  app.style.top = `${offsetY}px`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  fitAppToScreen();
+  window.addEventListener('resize', fitAppToScreen);
+  window.addEventListener('orientationchange', fitAppToScreen);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fitAppToScreen);
+  }
+
   document.querySelectorAll('[data-action="make-wish"]').forEach((btn) => {
     btn.addEventListener('click', startMakeWishFlow);
   });
