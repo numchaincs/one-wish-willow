@@ -420,14 +420,19 @@ function fitAppToScreen() {
   const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-  // ยืด/บีบแกน X กับ Y แยกกัน เพื่อให้เต็มจอพอดีทุกอุปกรณ์ ไม่มีขอบดำ
-  // (แลกกับภาพอาจยืดนิดหน่อยถ้าสัดส่วนจอต่างจากดีไซน์ 430x932 แต่ค่าความต่างมักน้อยมากบนมือถือส่วนใหญ่)
-  const scaleX = viewportWidth / DESIGN_WIDTH;
-  const scaleY = viewportHeight / DESIGN_HEIGHT;
+  // ล็อกสัดส่วน 430:932 ไว้เป๊ะ (ใช้ scale เดียวกันทั้งแกน X และ Y)
+  // ข้อแลกเปลี่ยน: ถ้าสัดส่วนจอไม่ตรงกับดีไซน์เป๊ะ อาจมีขอบว่างบาง ๆ ด้านบน/ล่างหรือซ้าย/ขวา
+  // แต่ภาพจะไม่ยืด/บีบเพี้ยนเด็ดขาด
+  const scale = Math.min(viewportWidth / DESIGN_WIDTH, viewportHeight / DESIGN_HEIGHT);
 
-  app.style.transform = `scale(${scaleX}, ${scaleY})`;
-  app.style.left = '0px';
-  app.style.top = '0px';
+  const scaledWidth = DESIGN_WIDTH * scale;
+  const scaledHeight = DESIGN_HEIGHT * scale;
+  const offsetX = Math.max(0, (viewportWidth - scaledWidth) / 2);
+  const offsetY = Math.max(0, (viewportHeight - scaledHeight) / 2);
+
+  app.style.transform = `scale(${scale})`;
+  app.style.left = `${offsetX}px`;
+  app.style.top = `${offsetY}px`;
 }
 
 // ── ซูมเข้าไปที่กล่องพิมพ์คำอธิษฐาน ตอนคีย์บอร์ดเปิดอยู่ ──
