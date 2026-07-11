@@ -27,9 +27,9 @@ async function loadWishesFromDb() {
     createdAt: w.created_at,
   }));
 
-  if (currentScreen === screens.HISTORY) {
-    renderWishList();
-  }
+  // อัปเดต DOM ทุกครั้งที่ข้อมูลเปลี่ยน ไม่ต้องรอให้อยู่หน้าประวัติก่อน
+  // (เผื่อ handleCrack เรียกตอนยังอยู่หน้า crack แล้วค่อย fade ไปหน้าประวัติทีหลัง)
+  renderWishList();
 }
 
 // โหลดข้อมูลครั้งแรกตอนเปิดหน้า
@@ -443,6 +443,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.querySelector('[data-action="view-all"]')?.addEventListener('click', viewAllWishes);
+
+  document.querySelector('[data-action="share"]')?.addEventListener('click', async () => {
+    const shareData = {
+      title: 'One Wish Willow',
+      text: 'มาอธิษฐานด้วยกันสิ! 🌟',
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('คัดลอกลิงก์แล้ว! นำไปแชร์ให้เพื่อนได้เลย');
+      }
+    } catch (err) {
+      // ผู้ใช้กดยกเลิก share sheet เอง — ไม่ต้องทำอะไรต่อ
+    }
+  });
 
   document.querySelectorAll('[data-action="go-home"]').forEach((btn) => {
     btn.addEventListener('click', closeHistory);
