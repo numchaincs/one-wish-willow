@@ -472,57 +472,30 @@ html, body {
   z-index: 2;
 }
 
-.wish-input-display {
-  font-family: var(--font-poppins);
-  font-size: 18px;
-  line-height: 1.4;
-  min-height: 27px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.wish-cursor {
-  color: var(--color-black);
-  animation: blink 1s step-end infinite;
-}
-
-.wish-cursor.hidden {
-  display: none;
-}
-
-.wish-placeholder {
-  color: var(--color-placeholder);
-}
-
-.wish-placeholder.hidden {
-  display: none;
-}
-
-.wish-text {
-  color: var(--color-black);
-  word-break: break-word;
-  white-space: pre-wrap;
-}
-
-.wish-input-hidden {
-  position: absolute;
-  inset: 0;
+.wish-input-field {
   width: 100%;
   height: 100%;
-  opacity: 0;
   border: none;
+  outline: none;
   background: transparent;
   resize: none;
   font-family: var(--font-poppins);
   font-size: 18px;
-  padding: 8px;
+  line-height: 1.4;
+  color: var(--color-black);
+  padding: 0;
+  margin: 0;
   cursor: text;
+  /* ข้อความเริ่มชิดซ้ายบนโดยธรรมชาติ (ค่า default ของ textarea) และ scroll ได้ในตัว
+     เมื่อพิมพ์ยาวเกินกรอบ แทนที่จะล้นออกมานอกกล่องสีขาวเหมือนก่อนหน้า */
+  overflow-y: auto;
+  caret-color: var(--color-black);
+  -webkit-appearance: none;
 }
 
-@keyframes blink {
-  50% { opacity: 0; }
+.wish-input-field::placeholder {
+  color: var(--color-placeholder);
 }
-
 .btn-make-wish {
   position: absolute;
   left: 50%;
