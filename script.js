@@ -161,49 +161,22 @@ function playSound(id) {
 function resetWishForm() {
   const input = document.getElementById('wishInput');
   const btn = document.getElementById('makeWishBtn');
-  const placeholder = document.getElementById('wishPlaceholder');
-  const text = document.getElementById('wishText');
-  const cursor = document.getElementById('wishCursor');
 
   if (input) input.value = '';
   if (btn) {
     btn.disabled = true;
     btn.classList.remove('enabled');
   }
-  if (placeholder) placeholder.classList.remove('hidden');
-  if (text) text.textContent = '';
-  if (cursor) cursor.classList.add('hidden');
 }
 
 function updateWishDisplay() {
   const input = document.getElementById('wishInput');
   const btn = document.getElementById('makeWishBtn');
-  const placeholder = document.getElementById('wishPlaceholder');
-  const text = document.getElementById('wishText');
-  const cursor = document.getElementById('wishCursor');
-  if (!input) return;
-  const value = input.value;
+  if (!input || !btn) return;
 
-  if (value.length > 0) {
-    if (placeholder) placeholder.classList.add('hidden');
-    if (text) text.textContent = value;
-    if (btn) {
-      btn.disabled = false;
-      btn.classList.add('enabled');
-    }
-  } else {
-    if (placeholder) placeholder.classList.remove('hidden');
-    if (text) text.textContent = '';
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.remove('enabled');
-    }
-  }
-
-  // cursor กระพริบทุกครั้งที่กำลังโฟกัสอยู่ (ไม่ว่าจะมีข้อความหรือไม่) และอยู่ท้ายข้อความเสมอ
-  if (cursor) {
-    cursor.classList.toggle('hidden', document.activeElement !== input);
-  }
+  const hasText = input.value.trim().length > 0;
+  btn.disabled = !hasText;
+  btn.classList.toggle('enabled', hasText);
 }
 
 async function startMakeWishFlow() {
