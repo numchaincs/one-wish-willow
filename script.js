@@ -1,4 +1,47 @@
-const STORAGE_KEY = 'one_wish_wishes';
+// ── Supabase config ──
+const SUPABASE_URL = 'https://cbqpjoyxxqfypdfrbjzq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicXBqb3l4eHFmeXBkZnJianpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjI0MjUsImV4cCI6MjA5OTMzODQyNX0.XpRghbdtecTgBZuO5qEhIkZHVEMy3UNBbgmM2cNQoDs';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// เก็บ cache ของ wishes ที่ได้รับจาก real-time listener (แทนที่ localStorage)
+let cachedWishes = [];
+
+async function loadWishesFromDb() {
+  const { data, error } = await db
+    .from('wishes')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if (error) {
+    console.error('Load wishes error:', error);
+    return;
+  }
+
+  cachedWishes = data.map((w) => ({
+    id: w.id,
+    text: w.text,
+    emoji: w.emoji,
+    createdAt: w.created_at,
+  }));
+
+  if (currentScreen === screens.HISTORY) {
+    renderWishList();
+  }
+}
+
+// โหลดข้อมูลครั้งแรกตอนเปิดหน้า
+loadWishesFromDb();
+
+// ฟัง real-time: ทุกครั้งที่มีใครเพิ่มคำอธิษฐานใหม่ (จากเครื่องไหนก็ตาม)
+// ทุกคนที่เปิดหน้านี้อยู่จะเห็นข้อมูลอัปเดตทันที
+db.channel('wishes-realtime')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'wishes' }, () => {
+    loadWishesFromDb();
+  })
+  .subscribe();
 
 const screens = {
   HOME: 'onewishhomepage',
@@ -28,22 +71,20 @@ let currentWishText = '';
 let crackCount = 0;
 
 function getWishes() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
+  return cachedWishes;
 }
 
-function saveWish(text) {
-  const wishes = getWishes();
-  wishes.unshift({
-    id: crypto.randomUUID(),
+async function saveWish(text) {
+  const { error } = await db.from('wishes').insert({
     text: text.trim(),
     emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-    createdAt: new Date().toISOString(),
   });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
+
+  if (error) {
+    console.error('Save wish error:', error);
+  }
+  // ไม่ต้อง render เองที่นี่ เพราะ realtime listener (postgres_changes)
+  // จะ trigger loadWishesFromDb() ให้อัตโนมัติเมื่อมีการ insert สำเร็จ
 }
 
 function formatDate(dateStr) {
@@ -256,8 +297,8 @@ async function handleCrack() {
   }, 500);
 
   if (crackCount >= 3) {
-    saveWish(currentWishText);
-    renderWishList();
+    await saveWish(currentWishText);
+    await loadWishesFromDb();
     await new Promise((r) => setTimeout(r, 800));
     await fadeTo(screens.HISTORY);
   }
@@ -302,7 +343,8 @@ function renderWishList() {
   list.innerHTML = html;
 }
 
-function viewAllWishes() {
+async function viewAllWishes() {
+  await loadWishesFromDb();
   const wishes = getWishes();
   if (wishes.length === 0) {
     fadeTo(screens.HISTORY_EMPTY);
