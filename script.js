@@ -405,6 +405,19 @@ function fitAppToScreen() {
   app.style.transform = `scale(${scale})`;
   app.style.left = `${offsetX}px`;
   app.style.top = `${offsetY}px`;
+
+  adjustInputFontSize(scale);
+}
+
+// iOS Safari จะซูมจออัตโนมัติเวลา focus ช่องพิมพ์ที่ font-size "ตามที่ตาเห็นจริงบนจอ" เล็กกว่า 16px
+// เพราะทั้งแอปถูกย่อด้วย transform: scale() ตัวอักษร 18px ที่ declare ไว้เลยเหลือแค่ไม่กี่ px ตอนแสดงผลจริง
+// เลยต้องขยาย font-size ชดเชยตาม scale ปัจจุบัน เพื่อให้ขนาดที่ตาเห็นจริงไม่มีวันต่ำกว่า 16px
+function adjustInputFontSize(scale) {
+  const input = document.getElementById('wishInput');
+  if (!input) return;
+  const DESIGN_FONT_SIZE = 18;
+  const compensatedSize = Math.max(DESIGN_FONT_SIZE, 16 / scale);
+  input.style.fontSize = `${compensatedSize}px`;
 }
 
 function applyLayout() {
