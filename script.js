@@ -172,7 +172,7 @@ function resetWishForm() {
   }
   if (placeholder) placeholder.classList.remove('hidden');
   if (text) text.textContent = '';
-  if (cursor) cursor.classList.remove('hidden');
+  if (cursor) cursor.classList.add('hidden');
 }
 
 function updateWishDisplay() {
@@ -186,7 +186,6 @@ function updateWishDisplay() {
 
   if (value.length > 0) {
     if (placeholder) placeholder.classList.add('hidden');
-    if (cursor) cursor.classList.add('hidden');
     if (text) text.textContent = value;
     if (btn) {
       btn.disabled = false;
@@ -199,9 +198,11 @@ function updateWishDisplay() {
       btn.disabled = true;
       btn.classList.remove('enabled');
     }
-    if (document.activeElement === input && cursor) {
-      cursor.classList.remove('hidden');
-    }
+  }
+
+  // cursor กระพริบทุกครั้งที่กำลังโฟกัสอยู่ (ไม่ว่าจะมีข้อความหรือไม่) และอยู่ท้ายข้อความเสมอ
+  if (cursor) {
+    cursor.classList.toggle('hidden', document.activeElement !== input);
   }
 }
 
@@ -405,6 +406,8 @@ function startCrackFlow(text) {
 }
 
 // ── Fit-to-screen: ย่อ/ขยายทั้งแอป (ดีไซน์ fixed 430x932) ให้พอดีกับหน้าจอจริงเสมอ ──
+let wishInputFocused = false;
+
 function fitAppToScreen() {
   const app = document.getElementById('app');
   if (!app) return;
@@ -430,12 +433,46 @@ function fitAppToScreen() {
   app.style.top = `${offsetY}px`;
 }
 
+// ── ซูมเข้าไปที่กล่องพิมพ์คำอธิษฐาน ตอนคีย์บอร์ดเปิดอยู่ ──
+// (ตำแหน่ง/ขนาดกล่องอ้างอิงจาก .wish-input-box ใน style.css: left:37px top:666px width:355px height:140px)
+const WISH_BOX = { left: 37, top: 666, width: 355, height: 140 };
+const INPUT_ZOOM_FACTOR = 1.6;
+
+function zoomToInput() {
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+  const baseScale = Math.min(viewportWidth / 430, viewportHeight / 932);
+  const scale = baseScale * INPUT_ZOOM_FACTOR;
+
+  const boxCenterX = WISH_BOX.left + WISH_BOX.width / 2;
+  const boxCenterY = WISH_BOX.top + WISH_BOX.height / 2;
+
+  const offsetX = viewportWidth / 2 - boxCenterX * scale;
+  const offsetY = viewportHeight / 2 - boxCenterY * scale;
+
+  app.style.transform = `scale(${scale})`;
+  app.style.left = `${offsetX}px`;
+  app.style.top = `${offsetY}px`;
+}
+
+function applyLayout() {
+  if (wishInputFocused) {
+    zoomToInput();
+  } else {
+    fitAppToScreen();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   fitAppToScreen();
-  window.addEventListener('resize', fitAppToScreen);
-  window.addEventListener('orientationchange', fitAppToScreen);
+  window.addEventListener('resize', applyLayout);
+  window.addEventListener('orientationchange', applyLayout);
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', fitAppToScreen);
+    window.visualViewport.addEventListener('resize', applyLayout);
   }
 
   document.querySelectorAll('[data-action="make-wish"]').forEach((btn) => {
@@ -470,12 +507,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (input) {
     input.addEventListener('input', updateWishDisplay);
     input.addEventListener('focus', () => {
-      document.getElementById('wishCursor')?.classList.remove('hidden');
+      wishInputFocused = true;
+      updateWishDisplay();
+      applyLayout();
     });
     input.addEventListener('blur', () => {
-      if (input.value.length === 0) {
-        document.getElementById('wishCursor')?.classList.add('hidden');
-      }
+      wishInputFocused = false;
+      updateWishDisplay();
+      applyLayout();
     });
   }
 
