@@ -373,7 +373,7 @@ html, body {
   margin: 16px auto 0 auto;
   /* ขยับไม้ขึ้นด้านบน เพื่อไม่ให้ส่วนที่ล้นจาก scale(1.8) ไปทับปุ่ม Crack the willow!
      ปรับตัวเลขนี้ (ยิ่งติดลบมาก ยิ่งขยับขึ้นสูง) ได้ตามชอบ */
-  transform: translateY(-150px);
+  transform: translateY(-100px);
 }
 
 #crack .crack-img-wrap {
