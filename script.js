@@ -415,7 +415,7 @@ function fitAppToScreen() {
 function adjustInputFontSize(scale) {
   const input = document.getElementById('wishInput');
   if (!input) return;
-  const DESIGN_FONT_SIZE = 18;
+  const DESIGN_FONT_SIZE = 16;
   const compensatedSize = Math.max(DESIGN_FONT_SIZE, 16 / scale);
   input.style.fontSize = `${compensatedSize}px`;
 }
