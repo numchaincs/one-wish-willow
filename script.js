@@ -381,6 +381,10 @@ function startCrackFlow(text) {
 // ── Fit-to-screen: ย่อ/ขยายทั้งแอป (ดีไซน์ fixed 430x932) ให้พอดีกับหน้าจอจริงเสมอ ──
 let wishInputFocused = false;
 
+// เก็บขนาดจอล่าสุดที่ "เชื่อถือได้" ไว้ (วัดตอนคีย์บอร์ดยังไม่เปิด)
+// เพราะ in-app browser บางตัว (IG, LINE) รายงานขนาดจอผิดเพี้ยนตอนคีย์บอร์ดเปิดอยู่
+let lastKnownViewport = { width: window.innerWidth, height: window.innerHeight };
+
 function fitAppToScreen() {
   const app = document.getElementById('app');
   if (!app) return;
@@ -392,6 +396,11 @@ function fitAppToScreen() {
   // (window.innerHeight มักไม่หัก address bar / แถบด้านล่างของเบราว์เซอร์ออกให้)
   const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+  // จำค่านี้ไว้ใช้ตอนซูมเข้าช่องพิมพ์ (เฉพาะตอนคีย์บอร์ดยังไม่เปิด/ไม่ได้ focus)
+  if (!wishInputFocused) {
+    lastKnownViewport = { width: viewportWidth, height: viewportHeight };
+  }
 
   // ล็อกสัดส่วน 430:932 ไว้เป๊ะ (ใช้ scale เดียวกันทั้งแกน X และ Y)
   // ข้อแลกเปลี่ยน: ถ้าสัดส่วนจอไม่ตรงกับดีไซน์เป๊ะ อาจมีขอบว่างบาง ๆ ด้านบน/ล่างหรือซ้าย/ขวา
@@ -417,8 +426,8 @@ function zoomToInput() {
   const app = document.getElementById('app');
   if (!app) return;
 
-  const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  // ใช้ขนาดจอที่ cache ไว้ตอนก่อนคีย์บอร์ดเปิด (เชื่อถือได้กว่า) แทนการอ่านสดตอนนี้
+  const { width: viewportWidth, height: viewportHeight } = lastKnownViewport;
 
   const baseScale = Math.min(viewportWidth / 430, viewportHeight / 932);
   const scale = baseScale * INPUT_ZOOM_FACTOR;
@@ -426,8 +435,9 @@ function zoomToInput() {
   const boxCenterX = WISH_BOX.left + WISH_BOX.width / 2;
   const boxCenterY = WISH_BOX.top + WISH_BOX.height / 2;
 
+  // จัดกล่องให้ค่อนไปทางครึ่งบนของจอ (แทนกึ่งกลางเป๊ะ) กันไว้เผื่อคีย์บอร์ดบังครึ่งล่างของจอจริง
   const offsetX = viewportWidth / 2 - boxCenterX * scale;
-  const offsetY = viewportHeight / 2 - boxCenterY * scale;
+  const offsetY = viewportHeight * 0.38 - boxCenterY * scale;
 
   app.style.transform = `scale(${scale})`;
   app.style.left = `${offsetX}px`;
