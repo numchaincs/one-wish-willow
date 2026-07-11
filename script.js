@@ -420,17 +420,14 @@ function fitAppToScreen() {
   const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-  const scale = Math.min(viewportWidth / DESIGN_WIDTH, viewportHeight / DESIGN_HEIGHT);
+  // ยืด/บีบแกน X กับ Y แยกกัน เพื่อให้เต็มจอพอดีทุกอุปกรณ์ ไม่มีขอบดำ
+  // (แลกกับภาพอาจยืดนิดหน่อยถ้าสัดส่วนจอต่างจากดีไซน์ 430x932 แต่ค่าความต่างมักน้อยมากบนมือถือส่วนใหญ่)
+  const scaleX = viewportWidth / DESIGN_WIDTH;
+  const scaleY = viewportHeight / DESIGN_HEIGHT;
 
-  const scaledWidth = DESIGN_WIDTH * scale;
-  const scaledHeight = DESIGN_HEIGHT * scale;
-
-  const offsetX = Math.max(0, (viewportWidth - scaledWidth) / 2);
-  const offsetY = Math.max(0, (viewportHeight - scaledHeight) / 2);
-
-  app.style.transform = `scale(${scale})`;
-  app.style.left = `${offsetX}px`;
-  app.style.top = `${offsetY}px`;
+  app.style.transform = `scale(${scaleX}, ${scaleY})`;
+  app.style.left = '0px';
+  app.style.top = '0px';
 }
 
 // ── ซูมเข้าไปที่กล่องพิมพ์คำอธิษฐาน ตอนคีย์บอร์ดเปิดอยู่ ──
@@ -506,9 +503,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('wishInput');
   if (input) {
     input.addEventListener('input', updateWishDisplay);
+
+    // focus() ที่เรียกอัตโนมัติตอนเข้าหน้าจอ (ใน startMakeWishFlow) จะไม่ยิง 'click'
+    // เลยใช้ click เป็นตัวสั่งซูมแทน — ซูมเฉพาะตอน user แตะกล่องจริงๆ เท่านั้น
     input.addEventListener('focus', () => {
-      wishInputFocused = true;
       updateWishDisplay();
+    });
+    input.addEventListener('click', () => {
+      wishInputFocused = true;
       applyLayout();
     });
     input.addEventListener('blur', () => {
