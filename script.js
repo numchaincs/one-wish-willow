@@ -379,12 +379,7 @@ function startCrackFlow(text) {
 }
 
 // ── Fit-to-screen: ย่อ/ขยายทั้งแอป (ดีไซน์ fixed 430x932) ให้พอดีกับหน้าจอจริงเสมอ ──
-let wishInputFocused = false;
-
-// เก็บขนาดจอล่าสุดที่ "เชื่อถือได้" ไว้ (วัดตอนคีย์บอร์ดยังไม่เปิด)
-// เพราะ in-app browser บางตัว (IG, LINE) รายงานขนาดจอผิดเพี้ยนตอนคีย์บอร์ดเปิดอยู่
-let lastKnownViewport = { width: window.innerWidth, height: window.innerHeight };
-
+// ใช้ layout เดียวกันตลอด ไม่ว่าจะกำลังพิมพ์อยู่หรือไม่ (เพื่อรองรับทั้งมือถือและคอมได้ดีที่สุด)
 function fitAppToScreen() {
   const app = document.getElementById('app');
   if (!app) return;
@@ -396,11 +391,6 @@ function fitAppToScreen() {
   // (window.innerHeight มักไม่หัก address bar / แถบด้านล่างของเบราว์เซอร์ออกให้)
   const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-
-  // จำค่านี้ไว้ใช้ตอนซูมเข้าช่องพิมพ์ (เฉพาะตอนคีย์บอร์ดยังไม่เปิด/ไม่ได้ focus)
-  if (!wishInputFocused) {
-    lastKnownViewport = { width: viewportWidth, height: viewportHeight };
-  }
 
   // ล็อกสัดส่วน 430:932 ไว้เป๊ะ (ใช้ scale เดียวกันทั้งแกน X และ Y)
   // ข้อแลกเปลี่ยน: ถ้าสัดส่วนจอไม่ตรงกับดีไซน์เป๊ะ อาจมีขอบว่างบาง ๆ ด้านบน/ล่างหรือซ้าย/ขวา
@@ -417,39 +407,8 @@ function fitAppToScreen() {
   app.style.top = `${offsetY}px`;
 }
 
-// ── ซูมเข้าไปที่กล่องพิมพ์คำอธิษฐาน ตอนคีย์บอร์ดเปิดอยู่ ──
-// (ตำแหน่ง/ขนาดกล่องอ้างอิงจาก .wish-input-box ใน style.css: left:37px top:666px width:355px height:140px)
-const WISH_BOX = { left: 37, top: 666, width: 355, height: 140 };
-const INPUT_ZOOM_FACTOR = 1.6;
-
-function zoomToInput() {
-  const app = document.getElementById('app');
-  if (!app) return;
-
-  // ใช้ขนาดจอที่ cache ไว้ตอนก่อนคีย์บอร์ดเปิด (เชื่อถือได้กว่า) แทนการอ่านสดตอนนี้
-  const { width: viewportWidth, height: viewportHeight } = lastKnownViewport;
-
-  const baseScale = Math.min(viewportWidth / 430, viewportHeight / 932);
-  const scale = baseScale * INPUT_ZOOM_FACTOR;
-
-  const boxCenterX = WISH_BOX.left + WISH_BOX.width / 2;
-  const boxCenterY = WISH_BOX.top + WISH_BOX.height / 2;
-
-  // จัดกล่องให้ค่อนไปทางครึ่งบนของจอ (แทนกึ่งกลางเป๊ะ) กันไว้เผื่อคีย์บอร์ดบังครึ่งล่างของจอจริง
-  const offsetX = viewportWidth / 2 - boxCenterX * scale;
-  const offsetY = viewportHeight * 0.38 - boxCenterY * scale;
-
-  app.style.transform = `scale(${scale})`;
-  app.style.left = `${offsetX}px`;
-  app.style.top = `${offsetY}px`;
-}
-
 function applyLayout() {
-  if (wishInputFocused) {
-    zoomToInput();
-  } else {
-    fitAppToScreen();
-  }
+  fitAppToScreen();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -491,21 +450,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('wishInput');
   if (input) {
     input.addEventListener('input', updateWishDisplay);
-
-    // focus() ที่เรียกอัตโนมัติตอนเข้าหน้าจอ (ใน startMakeWishFlow) จะไม่ยิง 'click'
-    // เลยใช้ click เป็นตัวสั่งซูมแทน — ซูมเฉพาะตอน user แตะกล่องจริงๆ เท่านั้น
-    input.addEventListener('focus', () => {
-      updateWishDisplay();
-    });
-    input.addEventListener('click', () => {
-      wishInputFocused = true;
-      applyLayout();
-    });
-    input.addEventListener('blur', () => {
-      wishInputFocused = false;
-      updateWishDisplay();
-      applyLayout();
-    });
+    input.addEventListener('focus', updateWishDisplay);
+    input.addEventListener('blur', updateWishDisplay);
   }
 
   document.getElementById('makeWishBtn')?.addEventListener('click', sendWish);
